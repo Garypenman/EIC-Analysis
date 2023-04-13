@@ -1,0 +1,17 @@
+#!/bin/bash
+
+export JUGGLER_N_EVENTS=10
+#export DETECTOR_PATH=
+#export DETECTOR_CONFIG=
+export JUGGLER_MC_FILE="/w/work5/home/garyp/eic/Generators/Topeg/HepMC/June_2022/eA-5x41-M3-Ph.hepmc"
+export JUGGLER_SIM_FILE="/scratch/garyp/test_topeg.root"
+
+ddsim --steeringFile minimal.py \
+      --numberOfEvents ${JUGGLER_N_EVENTS} \
+      --compactFile ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml \
+      --inputFiles ${JUGGLER_MC_FILE}  \
+      --outputFile  ${JUGGLER_SIM_FILE}
+#--runType batch \
+#--part.minimalKineticEnergy 1000*GeV  \
+#--filter.tracker edep0 \
+#-v ERROR \

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for file in /scratch/garyp/data/18.t.*.hepmc;
+do
+    export JUGGLER_INPUT_FILE=$file
+    export JUGGLER_OUTPUT_FILE=$
+
+done

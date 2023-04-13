@@ -1,0 +1,184 @@
+#include <TChain.h>
+#include <TSystem.h>
+#include <TMath.h>
+#include <TH1D.h>
+#include <TCanvas.h>
+
+#include <TLorentzVector.h>
+
+#include "EICAnalyser.h"
+
+void dvcsAnalyser(){
+  gErrorIgnoreLevel = 6001;
+  gSystem->Load("libeicsmear");
+
+  TChain C("EICTree");
+  C.Add("/w/work5/home/garyp/eic/EpiC/rootfiles/18*.root");
+
+  //use TTreeReader based selector
+  EICAnalyser ana;
+  ana.Init(&C);
+
+  Int_t Nev = C.GetEntries();
+  Int_t counter = 0;
+  Double_t pi = TMath::Pi();
+  
+  TH1D* hang = new TH1D("hang","Angle Between Electron and Photon",50,0,2*pi);
+  TH1D* hISR_theta = new TH1D("hISR_theta","Angle Between Photon and Beam",50,0,2*pi);
+  TH1D* hISR_p = new TH1D("hISR_p","Momentum of Radiated Photon",50,0,10);
+  TH1D* hISR_miss = new TH1D("hISR_miss","Missing mass of ISR photon",50,-1,1);
+  
+  for (Int_t ev=0; ev<Nev; ev++){
+    if ( ev%10000 == 0 ) cout << ev << "/" << Nev << endl;
+    
+    ana.GetEntry(ev);
+    Int_t ntracks = *(ana.nTracks);
+    //Double_t px[9] = &(ana.particles_px);
+    
+    if (ntracks < 7) {
+      continue;
+    }
+    
+    TLorentzVector eIn, pIn, gamV, gamR, eOut, pOut;
+    double py, pz, p, pt, E, m, theta, phi, vx, vy, vz;
+    vector<TLorentzVector> terts;
+    int totweirdgam=0;
+    
+    int evweirdgam = 0;
+    //counter++;
+    for (Int_t iter=0; iter<ntracks; iter++){
+      //particle id: 11=electron, 22=photon, 2212=proton
+      //px = ana.particles_px[iter];
+      //py = ana.particles_py[iter];
+      //pz = ana.particles_pz[iter];
+      //p = ana.particles_p[iter];
+      //pt = ana.particles_pt[iter];
+      //E = ana.particles_E[iter];
+      //m = ana.particles_m[iter];
+      //theta = ana.particles_theta[iter];
+      //phi = ana.particles_phi[iter];
+      //vx = ana.particles_xv[iter];
+      //vy = ana.particles_yv[iter];
+      //vz = ana.particles_zv[iter];
+
+      if(ntracks < 8){
+	cout << " 6/7 " << endl;
+      }
+      else if(ntracks > 7){
+	cout << " 8/9 " << endl;
+      }
+    }
+    
+    /*
+    double theta_eg = eOut.Dot(gamR);
+    hang->Fill(theta_eg);
+    
+    double theta_isr = eIn.Dot(gamR);
+    hISR_theta->Fill(theta_isr);
+
+    double p_isr = gamR.Mag();
+    hISR_p->Fill(p_isr);
+
+    double MM = (eIn+pIn - eOut - pOut - gamR).Mag();
+    hISR_miss->Fill(MM);
+    */
+    
+  }
+  
+  TCanvas *c1 = new TCanvas();
+  c1->Divide(2,2);
+  c1->cd(1);
+  hang->Draw();
+  c1->cd(2);
+  hISR_theta->Draw();
+  c1->cd(3);
+  hISR_p->Draw();
+  c1->cd(4);
+  hISR_miss->Draw();
+  
+  cout << counter << endl;
+  return;
+}
+
+//EVENT erhic::EventHepMC dump
+/*
+  root [6] hepev.Dump()
+  ==> Dumping object at: 0x00007fc63b104048, name=erhic::EventHepMC, class=erhic::EventHepMC
+
+  number                        -1                  Event number
+  process                       -1                  PYTHIA code for the physics process producing the event
+  nTracks                       -1                  Number of Particles in the event (intermediate + final)
+  ELeptonInNucl                                     Incident lepton energy in the
+  ELeptonOutNucl                                    Scattered lepton energy in the
+  particles                     ->7fc63b1040e0      Particle list
+  particles.*fClass             ->a19a3f0           !Pointer to the class of the elemnts
+  particles.*fKeep              ->c893b50           !Saved copies of pointers to objets
+  particles.*fCont              ->c8935b0           !Array contents
+  particles.fLowerBound         0                   Lower bound of the array
+  particles.fLast               -1                  Last element in array containing n object
+  particles.fSorted             false               true if collection has been sorte
+  particles.fName               erhic::ParticleMCs  name of the collection
+  particles.fName.fRep          ->7fc63b1040f8      ! String data
+  particles.fName.fRep.         ->7fc63b1040f8      
+  particles.fSize               100                 number of elements in collection
+  particles.fUniqueID           0                   object unique identifier
+  particles.fBits               0x02001000          bit field status word
+  x                                                 Bjorken scaling variable
+  QSquared                                          Q<sup>2</sup> calculated from scatered electron
+  y                                                 Inelasticity
+  WSquared                                          Invariant mass of the hadronic sytem
+  nu                                                Energy transfer from the electron
+  yJB                                               y calculated via the Jacquet-Blonel method
+  QSquaredJB                                        Q2 calculated via the Jacquet-Blodel method
+  xJB                                               x calculated via the Jacquet-Blonel method
+  WSquaredJB                                        W2 calculated via the Jacquet-Blodel method
+  yDA                                               y calculated via the double-anglemethod
+  QSquaredDA                                        Q2 calculated via the double-angl method
+  xDA                                               x calculated via the double-anglemethod
+  WSquaredDA                                        W2 calculated via the double-angl method
+  fUniqueID                     0                   object unique identifier
+  fBits                         0x02000000          bit field status word
+*/
+
+//Particle erhic::ParticleMC dump
+/*
+  root [1] particle.Dump()
+  ==> Dumping object at: 0x00007fcc8c96e030, name=erhic::ParticleMC, class=erhic::ParticleMC
+
+  *eA                           ->0                 
+  I                             0                   Particle index in event
+  KS                            0                   Particle status code: see PYTHIA manual
+  id                            0                   PDG particle code
+  orig                          0                   I of parent particle
+  orig1                         0                   I of parent particle1
+  daughter                      0                   I of first child particle
+  ldaughter                     0                   I of last child particle
+  px                            0                   x component of particle momentum
+  py                            0                   y component of particle momentum
+  pz                            0                   z component of particle momentum
+  E                                                 Energy of particle
+  m                                                 Invariant mass of particle
+  pt                                                Transverse momentum of particle
+  xv                            0                   x coordinate of particle production vertex
+  yv                            0                   y coordinate of particle production vertex
+  zv                            0                   z coordinate of particle production vertex
+  parentId                      -2147483648         PDG code of this particle's parent
+  p                                                 Total momentum of particle
+  theta                                             Polar angle
+  phi                                               Azimuthal angle
+  rapidity                                          Rapidity of particle
+  eta                                               Pseudorapidity of particle
+  z                                                 Fraction of virtual photon energy
+  xFeynman                                          Feynman x = p<sub>z</sub>/(2sqrt(s))
+  thetaGamma                                        Angle between particle and the exchange
+  ptVsGamma                                         pt w.r.t. the virtual photon in the
+  thetaGammaHCM                                     Angle between particle and the exchange
+ptVsGammaHCM                                      pt w.r.t. the virtual photon in the
+phiPrf                                            Azimuthal angle around virtual
+event                         ->7fcc8c96e108      Persistent reference to the event containing
+event.*fPID                   ->0                 !Pointer to ProcessID when TRef was written
+event.fUniqueID               0                   object unique identifier
+event.fBits                   0x02000000          bit field status word
+fUniqueID                     0                   object unique identifier
+fBits                         0x02000000          bit field status word
+*/
